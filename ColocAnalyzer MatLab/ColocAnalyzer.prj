@@ -1,0 +1,155 @@
+<deployment-project plugin="plugin.ezdeploy" plugin-version="1.0">
+  <configuration file="C:\Users\sm2425\Desktop\ColocAnalyzer\ColocAnalyzer.prj" location="C:\Users\sm2425\Desktop\ColocAnalyzer" name="ColocAnalyzer" target="target.ezdeploy.standalone" target-name="Application Compiler">
+    <param.appname>ColocAnalyzer</param.appname>
+    <param.icon />
+    <param.icons />
+    <param.version>1.0</param.version>
+    <param.authnamewatermark>Stas Makarchuk</param.authnamewatermark>
+    <param.email>sm2425@cam.ac.uk</param.email>
+    <param.company>MNG</param.company>
+    <param.summary>This software allows easy analysis on some colocalisation parameters with a range of filtering methods available</param.summary>
+    <param.description />
+    <param.screenshot>${PROJECT_ROOT}\ColocLogo.png</param.screenshot>
+    <param.guid />
+    <param.installpath.string>\MNG\ColocAnalyzer\</param.installpath.string>
+    <param.installpath.combo>option.installpath.programfiles</param.installpath.combo>
+    <param.logo />
+    <param.install.notes />
+    <param.target.install.notes />
+    <param.intermediate>${PROJECT_ROOT}\ColocAnalyzer\for_testing</param.intermediate>
+    <param.files.only>${PROJECT_ROOT}\ColocAnalyzer\for_redistribution_files_only</param.files.only>
+    <param.output>${PROJECT_ROOT}\ColocAnalyzer\for_redistribution</param.output>
+    <param.logdir>${PROJECT_ROOT}\ColocAnalyzer</param.logdir>
+    <param.enable.clean.build>false</param.enable.clean.build>
+    <param.user.defined.mcr.options />
+    <param.target.type>subtarget.standalone</param.target.type>
+    <param.support.packages />
+    <param.web.mcr>true</param.web.mcr>
+    <param.package.mcr>false</param.package.mcr>
+    <param.no.mcr>false</param.no.mcr>
+    <param.web.mcr.name>MyAppInstaller_web</param.web.mcr.name>
+    <param.package.mcr.name>MyAppInstaller_mcr</param.package.mcr.name>
+    <param.no.mcr.name>MyAppInstaller_app</param.no.mcr.name>
+    <param.windows.command.prompt>true</param.windows.command.prompt>
+    <param.create.log>false</param.create.log>
+    <param.log.file />
+    <param.native.matlab>false</param.native.matlab>
+    <param.checkbox>false</param.checkbox>
+    <param.example />
+    <param.help.text />
+    <unset>
+      <param.icon />
+      <param.icons />
+      <param.version />
+      <param.description />
+      <param.guid />
+      <param.installpath.string />
+      <param.installpath.combo />
+      <param.logo />
+      <param.install.notes />
+      <param.target.install.notes />
+      <param.intermediate />
+      <param.files.only />
+      <param.output />
+      <param.logdir />
+      <param.enable.clean.build />
+      <param.user.defined.mcr.options />
+      <param.target.type />
+      <param.support.packages />
+      <param.web.mcr />
+      <param.package.mcr />
+      <param.no.mcr />
+      <param.web.mcr.name />
+      <param.package.mcr.name />
+      <param.no.mcr.name />
+      <param.windows.command.prompt />
+      <param.create.log />
+      <param.log.file />
+      <param.native.matlab />
+      <param.checkbox />
+      <param.example />
+      <param.help.text />
+    </unset>
+    <fileset.main>
+      <file>${PROJECT_ROOT}\ColocAnalyzer.mlapp</file>
+    </fileset.main>
+    <fileset.resources />
+    <fileset.package />
+    <fileset.depfun>
+      <file>${PROJECT_ROOT}\CostesTreshold.m</file>
+      <file>${PROJECT_ROOT}\DistanceFunc.m</file>
+      <file>${PROJECT_ROOT}\Logo2.png</file>
+      <file>${PROJECT_ROOT}\MainScript.m</file>
+      <file>${PROJECT_ROOT}\MandersFunc.m</file>
+      <file>${PROJECT_ROOT}\ManualFiltering.m</file>
+      <file>${PROJECT_ROOT}\MedianeFiltering.m</file>
+      <file>${PROJECT_ROOT}\MedianeOtsuFiltering.m</file>
+      <file>${PROJECT_ROOT}\OtsuFiltering.m</file>
+      <file>${PROJECT_ROOT}\PearsonAllPixels.m</file>
+      <file>${PROJECT_ROOT}\PearsonNonZeroFunc.m</file>
+      <file>D:\PostDoc Cambridge\STORM\Software\PostAnalysis\First neighbour\Nice software\GetSpotPosBW.m</file>
+    </fileset.depfun>
+    <build-deliverables>
+      <file location="${PROJECT_ROOT}\ColocAnalyzer\for_testing" name="readme.txt" optional="true">C:\Users\sm2425\Desktop\ColocAnalyzer\ColocAnalyzer\for_testing\readme.txt</file>
+      <file location="${PROJECT_ROOT}\ColocAnalyzer\for_testing" name="ColocAnalyzer.exe" optional="false">C:\Users\sm2425\Desktop\ColocAnalyzer\ColocAnalyzer\for_testing\ColocAnalyzer.exe</file>
+      <file location="${PROJECT_ROOT}\ColocAnalyzer\for_testing" name="splash.png" optional="false">C:\Users\sm2425\Desktop\ColocAnalyzer\ColocAnalyzer\for_testing\splash.png</file>
+    </build-deliverables>
+    <workflow />
+    <matlab>
+      <root>C:\Program Files\MATLAB\R2018b</root>
+      <toolboxes>
+        <toolbox name="matlabcoder" />
+        <toolbox name="embeddedcoder" />
+        <toolbox name="gpucoder" />
+        <toolbox name="fixedpoint" />
+        <toolbox name="matlabhdlcoder" />
+        <toolbox name="neuralnetwork" />
+      </toolboxes>
+      <toolbox>
+        <matlabcoder>
+          <enabled>true</enabled>
+        </matlabcoder>
+      </toolbox>
+      <toolbox>
+        <embeddedcoder>
+          <enabled>true</enabled>
+        </embeddedcoder>
+      </toolbox>
+      <toolbox>
+        <gpucoder>
+          <enabled>true</enabled>
+        </gpucoder>
+      </toolbox>
+      <toolbox>
+        <fixedpoint>
+          <enabled>true</enabled>
+        </fixedpoint>
+      </toolbox>
+      <toolbox>
+        <matlabhdlcoder>
+          <enabled>true</enabled>
+        </matlabhdlcoder>
+      </toolbox>
+      <toolbox>
+        <neuralnetwork>
+          <enabled>true</enabled>
+        </neuralnetwork>
+      </toolbox>
+    </matlab>
+    <platform>
+      <unix>false</unix>
+      <mac>false</mac>
+      <windows>true</windows>
+      <win2k>false</win2k>
+      <winxp>false</winxp>
+      <vista>false</vista>
+      <linux>false</linux>
+      <solaris>false</solaris>
+      <osver>10.0</osver>
+      <os32>false</os32>
+      <os64>true</os64>
+      <arch>win64</arch>
+      <matlab>true</matlab>
+    </platform>
+  </configuration>
+</deployment-project>
