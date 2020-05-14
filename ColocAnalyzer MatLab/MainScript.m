@@ -18,6 +18,14 @@ w = warning ('off','all');
 
 %% check for existence of the paths
 
+
+%choose correct separation symbol
+if ismac==1
+    SepSym = '/';
+else
+    SepSym = '\';
+end
+
 if isempty(FolderWithImages)==1
     errordlg('Field for the folder path with images is empty!')
 else
@@ -42,7 +50,7 @@ end
    for i=1:size(ListOfFiles,1)
       if size(ListOfFiles(i).name,2)>4
             if ListOfFiles(i).name(end-3:end)=='.tif'
-                AllImages(nI).Image = imread([FolderWithImages '\' ListOfFiles(i).name]);
+                AllImages(nI).Image = imread([FolderWithImages SepSym ListOfFiles(i).name]);
                 AllImages(nI).Name = ListOfFiles(i).name(1:end-4);
                 nI=nI+1;
                 %message for user
@@ -108,8 +116,8 @@ end
   %% save filtered images if path is indicated
   if isempty(FolderFiltered)==0
       %check and add the separation symbol if needed
-      if FolderFiltered(end) ~= '\'
-          FolderFiltered = [FolderFiltered '\'];
+      if FolderFiltered(end) ~= SepSym
+          FolderFiltered = [FolderFiltered SepSym];
       end
       %check if the folder exist and if not create one
       if ~exist(FolderFiltered, 'dir')
