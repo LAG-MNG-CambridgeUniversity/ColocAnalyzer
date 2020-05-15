@@ -36,7 +36,7 @@ if isempty(FolderResults)==1
 else
     %check for the folder existence
     if ~exist(FolderResults, 'dir')
-        errordlg('Please check the path for saving results - folder does not exist!')
+        mkdir FolderResults
     end
 end
 
@@ -194,15 +194,15 @@ for nTest = 1:NumberTests
       er = errorbar(1,mean(TablePearson.PearsonCoef),std(TablePearson.PearsonCoef),std(TablePearson.PearsonCoef));    
       er.Color = [0 0 0]; er.LineStyle = 'none';
       ylabel('Pearson coefficient')
-      saveas(gcf, [FolderResults '\PearsonCoefficientTestNumber' num2str(nTest) '.png'])
+      saveas(gcf, [FolderResults SepSym 'PearsonCoefficientTestNumber' num2str(nTest) '.png'])
       close
       
       %save data to matlab workspace
       
-      save([FolderResults '\RandomTestNumber' num2str(nTest) '.mat'], 'TablePearson')
+      save([FolderResults SepSym 'RandomTestNumber' num2str(nTest) '.mat'], 'TablePearson')
         
       %save data to csv excel file
-      writetable(TablePearson,[FolderResults '\PearsonTestNumber' num2str(nTest) '.csv'])
+      writetable(TablePearson,[FolderResults SepSym 'PearsonTestNumber' num2str(nTest) '.csv'])
   end
 
   if PearsonNonZero 
@@ -221,18 +221,18 @@ for nTest = 1:NumberTests
       er = errorbar(1,mean(TablePearsonNonZero.PearsonCoef),std(TablePearsonNonZero.PearsonCoef),std(TablePearsonNonZero.PearsonCoef));    
       er.Color = [0 0 0]; er.LineStyle = 'none';  
       ylabel('Pearson coefficient for non-zero pixels')
-      saveas(gcf, [FolderResults '\PearsonCoefficientNonZeroTestNumber' num2str(nTest) '.png'])
+      saveas(gcf, [FolderResults SepSym 'PearsonCoefficientNonZeroTestNumber' num2str(nTest) '.png'])
       close
       
       %save data to matlab workspace
-      if exist([FolderResults '\RandomTestNumber' num2str(nTest) '.mat'])==0
-          save([FolderResults '\RandomTestNumber' num2str(nTest) '.mat'], 'TablePearsonNonZero')
+      if exist([FolderResults SepSym 'RandomTestNumber' num2str(nTest) '.mat'])==0
+          save([FolderResults SepSym 'RandomTestNumber' num2str(nTest) '.mat'], 'TablePearsonNonZero')
       else
-          save([FolderResults '\RandomTestNumber' num2str(nTest) '.mat'], 'TablePearsonNonZero', '-append')
+          save([FolderResults SepSym 'RandomTestNumber' num2str(nTest) '.mat'], 'TablePearsonNonZero', '-append')
       end
       
       %save data to csv excel file
-      writetable(TablePearsonNonZero,[FolderResults '\PearsonNonZeroTestNumber' num2str(nTest) '.csv'])
+      writetable(TablePearsonNonZero,[FolderResults SepSym 'PearsonNonZeroTestNumber' num2str(nTest) '.csv'])
   end
   
   
@@ -253,20 +253,20 @@ for nTest = 1:NumberTests
       xlabel('Distance [nm]')
       ylabel('Probability of occurence')
       title('Distance to closest neighbour')
-      saveas(gcf, [FolderResults '\DistanceTestNumber' num2str(nTest) '.png'])
+      saveas(gcf, [FolderResults SepSym 'DistanceTestNumber' num2str(nTest) '.png'])
       close
       
       
       %save data to matlab workspace
-      if exist([FolderResults '\RandomTestNumber' num2str(nTest) '.mat'])==0
-          save([FolderResults '\RandomTestNumber' num2str(nTest) '.mat'], 'DistanceNeighbour', 'DistanceAll')
+      if exist([FolderResults SepSym 'RandomTestNumber' num2str(nTest) '.mat'])==0
+          save([FolderResults SepSym 'RandomTestNumber' num2str(nTest) '.mat'], 'DistanceNeighbour', 'DistanceAll')
       else
-          save([FolderResults '\RandomTestNumber' num2str(nTest) '.mat'], 'DistanceNeighbour', 'DistanceAll', '-append')
+          save([FolderResults SepSym 'RandomTestNumber' num2str(nTest) '.mat'], 'DistanceNeighbour', 'DistanceAll', '-append')
       end
       
       %save data to csv excel file
       TableDistance = table(DistanceAll, 'VariableNames', {'Distance_nm'});
-      writetable(TableDistance,[FolderResults '\DistanceTestNumber' num2str(nTest) '.csv'])
+      writetable(TableDistance,[FolderResults SepSym 'DistanceTestNumber' num2str(nTest) '.csv'])
   end
   
   
@@ -297,18 +297,18 @@ for nTest = 1:NumberTests
       
       xticks([1 2 3])
       xticklabels({'MOC', 'Frac. coef. 1',  'Frac. coef. 2'})
-      saveas(gcf, [FolderResults '\MandersTestNumber' num2str(nTest) '.png'])
+      saveas(gcf, [FolderResults SepSym 'MandersTestNumber' num2str(nTest) '.png'])
       close
       
       %save data to matlab workspace
-      if exist([FolderResults '\RandomTestNumber' num2str(nTest) '.mat'])==0
-          save([FolderResults '\RandomTestNumber' num2str(nTest) '.mat'], 'TableManders')
+      if exist([FolderResults SepSym 'RandomTestNumber' num2str(nTest) '.mat'])==0
+          save([FolderResults SepSym 'RandomTestNumber' num2str(nTest) '.mat'], 'TableManders')
       else
-          save([FolderResults '\RandomTestNumber' num2str(nTest) '.mat'], 'TableManders', '-append')
+          save([FolderResults SepSym 'RandomTestNumber' num2str(nTest) '.mat'], 'TableManders', '-append')
       end
       
       %save data to csv excel file
-      writetable(TableManders,[FolderResults '\MandersTestNumber' num2str(nTest) '.csv'])
+      writetable(TableManders,[FolderResults SepSym 'MandersTestNumber' num2str(nTest) '.csv'])
   end
 end
 end

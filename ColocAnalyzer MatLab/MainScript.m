@@ -38,7 +38,7 @@ if isempty(FolderResults)==1
 else
     %check for the folder existence
     if ~exist(FolderResults, 'dir')
-        errordlg('Please check the path for saving results - folder does not exist!')
+       mkdir FolderResults
     end
 end
 
@@ -146,14 +146,14 @@ end
       er = errorbar(1,mean(TablePearson.PearsonCoef),std(TablePearson.PearsonCoef),std(TablePearson.PearsonCoef));    
       er.Color = [0 0 0]; er.LineStyle = 'none';
       ylabel('Pearson coefficient')
-      saveas(gcf, [FolderResults '\PearsonCoefficient.png'])
+      saveas(gcf, [FolderResults SepSym 'PearsonCoefficient.png'])
       close
       
       %save data to matlab workspace
-      save([FolderResults '\AllResults.mat'], 'TablePearson')
+      save([FolderResults SepSym 'AllResults.mat'], 'TablePearson')
         
       %save data to csv excel file
-      writetable(TablePearson,[FolderResults '\Pearson.csv'])
+      writetable(TablePearson,[FolderResults SepSym 'Pearson.csv'])
   end
 
   if PearsonNonZero 
@@ -172,18 +172,18 @@ end
       er = errorbar(1,mean(TablePearsonNonZero.PearsonCoef),std(TablePearsonNonZero.PearsonCoef),std(TablePearsonNonZero.PearsonCoef));    
       er.Color = [0 0 0]; er.LineStyle = 'none';  
       ylabel('Pearson coefficient for non-zero pixels')
-      saveas(gcf, [FolderResults '\PearsonCoefficientNonZero.png'])
+      saveas(gcf, [FolderResults SepSym 'PearsonCoefficientNonZero.png'])
       close
       
       %save data to matlab workspace
-      if exist([FolderResults '\AllResults.mat'])==0
-          save([FolderResults '\AllResults.mat'], 'TablePearsonNonZero')
+      if exist([FolderResults SepSym 'AllResults.mat'])==0
+          save([FolderResults SepSym 'AllResults.mat'], 'TablePearsonNonZero')
       else
-          save([FolderResults '\AllResults.mat'], 'TablePearsonNonZero', '-append')
+          save([FolderResults SepSym 'AllResults.mat'], 'TablePearsonNonZero', '-append')
       end
       
       %save data to csv excel file
-      writetable(TablePearsonNonZero,[FolderResults '\PearsonNonZero.csv'])
+      writetable(TablePearsonNonZero,[FolderResults SepSym 'PearsonNonZero.csv'])
   end
   
   
@@ -204,20 +204,20 @@ end
       xlabel('Distance [nm]')
       ylabel('Probability of occurence')
       title('Distance to closest neighbour')
-      saveas(gcf, [FolderResults '\Distance.png'])
+      saveas(gcf, [FolderResults SepSym 'Distance.png'])
       close
       
       
       %save data to matlab workspace
-      if exist([FolderResults '\AllResults.mat'])==0
-          save([FolderResults '\AllResults.mat'], 'DistanceNeighbour', 'DistanceAll')
+      if exist([FolderResults SepSym 'AllResults.mat'])==0
+          save([FolderResults SepSym 'AllResults.mat'], 'DistanceNeighbour', 'DistanceAll')
       else
-          save([FolderResults '\AllResults.mat'], 'DistanceNeighbour', 'DistanceAll', '-append')
+          save([FolderResults SepSym 'AllResults.mat'], 'DistanceNeighbour', 'DistanceAll', '-append')
       end
       
       %save data to csv excel file
       TableDistance = table(DistanceAll, 'VariableNames', {'Distance_nm'});
-      writetable(TableDistance,[FolderResults '\Distance.csv'])
+      writetable(TableDistance,[FolderResults SepSym 'Distance.csv'])
   end
   
   
@@ -248,18 +248,18 @@ end
       
       xticks([1 2 3])
       xticklabels({'MOC', 'Frac. coef. 1',  'Frac. coef. 2'})
-      saveas(gcf, [FolderResults '\Manders.png'])
+      saveas(gcf, [FolderResults SepSym 'Manders.png'])
       close
       
       %save data to matlab workspace
-      if exist([FolderResults '\AllResults.mat'])==0
-          save([FolderResults '\AllResults.mat'], 'TableManders')
+      if exist([FolderResults SepSym 'AllResults.mat'])==0
+          save([FolderResults SepSym 'AllResults.mat'], 'TableManders')
       else
-          save([FolderResults '\AllResults.mat'], 'TableManders', '-append')
+          save([FolderResults SepSym 'AllResults.mat'], 'TableManders', '-append')
       end
       
       %save data to csv excel file
-      writetable(TableManders,[FolderResults '\Manders.csv'])
+      writetable(TableManders,[FolderResults SepSym 'Manders.csv'])
   end
 end
 
