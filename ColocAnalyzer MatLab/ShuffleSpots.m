@@ -50,15 +50,16 @@ for i=1:size(areas,1)
             ClustersIn1 = SpotPos1(IN1);
             ClustersIn2 = SpotPos2(IN2);
             
+            
             Spot_density(i,1) = size(ClustersIn1,2)/(SegmLength*SegmLength);
             Spot_density(i,2) =  size(ClustersIn2,2)/(SegmLength*SegmLength);
             %firstly we "place" all clusters from channel 1 at the same
             %places
-            for j=1:size(ClustersIn1,2)
-                for k=1:size(ClustersIn1(j).PixelPos,1)
-                    xx = int16(ClustersIn1(j).PixelPos(k,1));
-                    yy = int16(ClustersIn1(j).PixelPos(k,2));
-                    NewImage(yy, xx, main_channel) = ClustersIn1(j).Intensities(k,1);
+            for j=1:size(SpotPos1,2)
+                for k=1:size(SpotPos1(j).PixelPos,1)
+                    xx = int16(SpotPos1(j).PixelPos(k,1));
+                    yy = int16(SpotPos1(j).PixelPos(k,2));
+                    NewImage(yy, xx, main_channel) = SpotPos1(j).Intensities(k,1);
                 end
             end
 

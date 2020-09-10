@@ -6,7 +6,9 @@
 %All questions can be addressed at sm2425@cam.ac.uk
 %Stas Makarchuk, Molecular Neuroscience Group, 2020
 
-function [] = MainScript(FolderWithImages, FilteringMethod, ManualThreshold, FolderFiltered, FolderResults, Pearson, PearsonNonZero, Distance, Manders, main_channel, sec_channel, BoxSideMedian, PixelSize, FolderShuffled, NumberTests, density_channel, BoxLengthDensity, DensityCorrections, DensityThreshold)
+function [] = MainScript(FolderWithImages, FilteringMethod, ManualThreshold, FolderFiltered, FolderResults, Pearson, PearsonNonZero, Distance, Manders, main_channel, sec_channel, BoxSideMedian, PixelSize, FolderShuffled, NumberTests, density_channel, BoxLengthDensity, DensityCorrections, DensityThreshold, Spearman, SpearmanNonZero)
+
+
 
 %% parameters
 %define which channels are considered for use %1=red; 2=green; 3=blue;
@@ -15,14 +17,26 @@ function [] = MainScript(FolderWithImages, FilteringMethod, ManualThreshold, Fol
 %BoxSideMedian = 20; %in pixels
 %PixelSize = 10; %in nm
 w = warning ('off','all');
-
-%% check for existence of the paths
-
 %choose correct separation symbol
 if ismac==1
     SepSym = '/';
 else
     SepSym = '\';
+end
+
+
+%% check for existence of the paths
+%message in case if user didnt chose any of methods for analysis
+if Pearson==0 & PearsonNonZero==0 & Distance==0 & Manders ==0 & Spearman==0 & SpearmanNonZero==0 
+   opts.Interpreter = 'tex';
+   opts.Default = 'Continue';
+   quest = ['\fontsize{12} You did not chose any of coeffcients to be analyzed. Do you wish to continue?'];
+   answer = questdlg(quest,'Message','Stop','Continue',opts);
+   if strcmp(answer,'Continue')
+      
+   else 
+      return
+   end
 end
 
 if isempty(FolderWithImages)==1
@@ -36,7 +50,7 @@ if isempty(FolderResults)==1
 else
     %check for the folder existence
     if ~exist(FolderResults, 'dir')
-        mkdir FolderResults
+        errordlg('Please check the path for saving results - folder does not exist!')
     end
 end
 
@@ -109,6 +123,35 @@ end
       AllImagesFiltered = AllImages;
   end
    
+    %% Check if some of filtred images have completely no signal in one of the chosed channels
+  
+  for i=1:size(AllImagesFiltered,2)
+      %%message if one of the channels is empty
+                if sum(sum(AllImagesFiltered(i).Image(:,:,main_channel)))==0
+                    opts.Interpreter = 'tex';
+                    opts.Default = 'Continue';
+                    quest = ['\fontsize{12} Channel 1 in image ' AllImages(i).Name  ' is empty. Do you wish to continue?'];
+                    answer = questdlg(quest,'Message','Stop','Continue',opts);
+                    if strcmp(answer,'Continue')
+                        mkdir(path_output);
+                    else 
+                        return
+                    end
+                end
+                
+                if sum(sum(AllImagesFiltered(i).Image(:,:,sec_channel)))==0
+                    opts.Interpreter = 'tex';
+                    opts.Default = 'Continue';
+                    quest = ['\fontsize{12} Channel 2 in image ' AllImages(i).Name  ' is empty. Do you wish to continue?'];
+                    answer = questdlg(quest,'Message','Stop','Continue',opts);
+                    if strcmp(answer,'Continue')
+                        mkdir(path_output);
+                    else 
+                        return
+                    end
+                end
+      
+  end
   
   
   %% save filtered images if path is indicated
@@ -140,7 +183,14 @@ end
       SpotPos(i).Channel2 = GetSpotPosIMG(AllImagesFiltered(i).Image(:,:,sec_channel));
       SpotPos(i).ChannelDensity = GetSpotPosIMG(AllImagesFiltered(i).Image(:,:,density_channel)); %yes I know that it can be one of the channels above, but not neccesarly!
       
-      for j=1:size(SpotPos(i).ChannelDensity,2) SpotsCenters(j,:) = SpotPos(i).ChannelDensity(j).Centers; end   
+      
+%       if size(SpotPos(i).ChannelDensity,1)==1
+%          errordlg(['After filtering image ' AllImages(i).Name ' has no signal (completely black image). Please change parameteres of filtering and start again!'])
+%       end
+      
+      for j=1:size(SpotPos(i).ChannelDensity,2) 
+          SpotsCenters(j,:) = SpotPos(i).ChannelDensity(j).Centers; 
+      end   
       %search areas with high density of spots in density_channel 
       SpotPos(i).DenseAreas = DensityMap(SpotsCenters, BoxLengthDensity, size(AllImagesFiltered(i).Image,1), DensityThreshold);
   
@@ -266,7 +316,7 @@ for nTest = 1:NumberTests
       
       %save data to csv excel file
       TableDistance = table(DistanceAll, 'VariableNames', {'Distance_nm'});
-      writetable(TableDistance,[FolderResults SepSym 'DistanceTestNumber' num2str(nTest) '.csv'])
+      writetable(TableDistance,[FolderResults 'SepSymDistanceTestNumber' num2str(nTest) '.csv'])
   end
   
   
@@ -310,6 +360,72 @@ for nTest = 1:NumberTests
       %save data to csv excel file
       writetable(TableManders,[FolderResults SepSym 'MandersTestNumber' num2str(nTest) '.csv'])
   end
+  
+  if Spearman
+      TableSpearman  = cell2table(cell(0,4), 'VariableNames', {'Name', 'SpearmanRankCoefficient', 'FractionOfUsedPixels', 'NumberOfUsedPixels'});
+      TableSpearman.Name = string(zeros(0,1));  
+      for i=1:NumberImages
+          [TableSpearman.SpearmanRankCoefficient(i) TableSpearman.FractionOfUsedPixels(i) TableSpearman.NumberOfUsedPixels(i)]= SpearmanFunc(double(AllImagesFilteredShuffled(i).Test(nTest).Image(:,:,main_channel)), double(AllImagesFilteredShuffled(i).Test(nTest).Image(:,:,sec_channel)));          
+          TableSpearman.Name(i) = AllImagesFiltered(i).Name;
+      end
+      
+      %save plot
+      figure
+      bar(1,mean(TableSpearman.SpearmanRankCoefficient), 'EdgeColor', 'k', 'FaceColor', [0.8 0.8 0.8])    
+      hold on
+      er = errorbar(1,mean(TableSpearman.SpearmanRankCoefficient),std(TableSpearman.SpearmanRankCoefficient),std(TableSpearman.SpearmanRankCoefficient));    
+      er.Color = [0 0 0]; er.LineStyle = 'none'; 
+      xticks([1])
+      xticklabels({'Spearman rank coefficient'})
+      saveas(gcf, [FolderResults SepSym 'SpearmanTestNumber' num2str(nTest) '.png'])
+      close
+      
+      %save data to matlab workspace
+      if exist([FolderResults SepSym 'RandomTestNumber' num2str(nTest) '.mat'])==0
+          save([FolderResults SepSym 'RandomTestNumber' num2str(nTest) '.mat'], 'TableSpearman')
+      else
+          save([FolderResults SepSym 'RandomTestNumber' num2str(nTest) '.mat'], 'TableSpearman', '-append')
+      end
+      
+      %save data to csv excel file
+      writetable(TableSpearman,[FolderResults SepSym 'SpearmanTestNumber' num2str(nTest) '.csv'])
+  end
+  
+  
+  if SpearmanNonZero  
+      TableSpearmanNonZero  = cell2table(cell(0,4), 'VariableNames', {'Name', 'SpearmanRankCoefficient','FractionOfUsedPixels','NumberOfUsedPixels'});
+      TableSpearmanNonZero.Name = string(zeros(0,1));  
+      for i=1:NumberImages
+          tic
+          [TableSpearmanNonZero.SpearmanRankCoefficient(i) TableSpearmanNonZero.FractionOfUsedPixels(i) TableSpearmanNonZero.NumberOfUsedPixels(i)] = SpearmanFuncNonZero(double(AllImagesFiltered(i).Image(:,:,main_channel)), double(AllImagesFiltered(i).Image(:,:,sec_channel)));          
+          TableSpearmanNonZero.Name(i) = AllImagesFiltered(i).Name;
+            toc
+      end
+      
+      %save plot
+      figure
+      bar(1,mean(TableSpearmanNonZero.SpearmanRankCoefficient), 'EdgeColor', 'k', 'FaceColor', [0.8 0.8 0.8])    
+      hold on
+      er = errorbar(1,mean(TableSpearmanNonZero.SpearmanRankCoefficient),std(TableSpearmanNonZero.SpearmanRankCoefficient),std(TableSpearmanNonZero.SpearmanRankCoefficient));    
+      er.Color = [0 0 0]; er.LineStyle = 'none';  
+   
+      
+      xticks([1])
+      xticklabels({'Spearman rank coefficient (for "non-zero" pixels)'})
+      saveas(gcf, [FolderResults SepSym 'SpearmanNonZero.png'])
+      close
+      
+      %save data to matlab workspace
+      if exist([FolderResults SepSym 'AllResults.mat'])==0
+          save([FolderResults SepSym 'AllResults.mat'], 'TableSpearmanNonZero')
+      else
+          save([FolderResults SepSym 'AllResults.mat'], 'TableSpearmanNonZero', '-append')
+      end
+      
+      %save data to csv excel file
+      writetable(TableSpearmanNonZero,[FolderResults SepSym 'SpearmanNonZero.csv'])
+  end
+  
 end
 end
 

@@ -6,7 +6,7 @@
 %All questions can be addressed at sm2425@cam.ac.uk
 %Stas Makarchuk, Molecular Neuroscience Group, 2020
 
-function [] = MainScript(FolderWithImages, FilteringMethod, ManualThreshold, FolderFiltered, FolderResults, Pearson, PearsonNonZero, Distance, Manders, main_channel, sec_channel, BoxSideMedian, PixelSize)
+function [] = MainScript(FolderWithImages, FilteringMethod, ManualThreshold, FolderFiltered, FolderResults, Pearson, PearsonNonZero, Distance, Manders, main_channel, sec_channel, BoxSideMedian, PixelSize, Spearman, SpearmanNonZero)
 
 %% parameters
 %define which channels are considered for use %1=red; 2=green; 3=blue;
@@ -16,9 +16,6 @@ function [] = MainScript(FolderWithImages, FilteringMethod, ManualThreshold, Fol
 %PixelSize = 10; %in nm
 w = warning ('off','all');
 
-%% check for existence of the paths
-
-
 %choose correct separation symbol
 if ismac==1
     SepSym = '/';
@@ -26,6 +23,24 @@ else
     SepSym = '\';
 end
 
+%% checks and warnings
+
+%message in case if user didnt chose any of methods for analysis
+if Pearson==0 & PearsonNonZero==0 & Distance==0 & Manders ==0 & Spearman==0 & SpearmanNonZero==0 
+   opts.Interpreter = 'tex';
+   opts.Default = 'Continue';
+   quest = ['\fontsize{12} You did not chose any of coeffcients to be analyzed. Do you wish to continue?'];
+   answer = questdlg(quest,'Message','Stop','Continue',opts);
+   if strcmp(answer,'Continue')
+      
+   else 
+      return
+   end
+end
+
+
+
+%check for existence of the paths
 if isempty(FolderWithImages)==1
     errordlg('Field for the folder path with images is empty!')
 else
@@ -38,9 +53,10 @@ if isempty(FolderResults)==1
 else
     %check for the folder existence
     if ~exist(FolderResults, 'dir')
-       mkdir FolderResults
+        errordlg('Please check the path for saving results - folder does not exist!')
     end
 end
+
 
 
 
@@ -52,9 +68,37 @@ end
             if ListOfFiles(i).name(end-3:end)=='.tif'
                 AllImages(nI).Image = imread([FolderWithImages SepSym ListOfFiles(i).name]);
                 AllImages(nI).Name = ListOfFiles(i).name(1:end-4);
-                nI=nI+1;
+                if size(AllImages(nI).Image,3)<3
+                    errordlg('Image should be RGB type, where 2 channels (colors) are used for computing colocalisation!')
+                end
                 %message for user
                 disp(['Image ' ListOfFiles(i).name(1:end-4) ' is taken into analysis'])
+
+                %%message if one of the channels is empty
+                if sum(sum(AllImages(nI).Image(:,:,main_channel)))==0
+                    opts.Interpreter = 'tex';
+                    opts.Default = 'Continue';
+                    quest = ['\fontsize{12} Channel 1 in image ' AllImages(nI).Name  ' is empty. Do you wish to continue?'];
+                    answer = questdlg(quest,'Message','Stop','Continue',opts);
+                    if strcmp(answer,'Continue')
+                        mkdir(path_output);
+                    else 
+                        return
+                    end
+                end
+
+                if sum(sum(AllImages(nI).Image(:,:,sec_channel)))==0
+                    opts.Interpreter = 'tex';
+                    opts.Default = 'Continue';
+                    quest = ['\fontsize{12} Channel 2 in image ' AllImages(nI).Name  ' is empty. Do you wish to continue?'];
+                    answer = questdlg(quest,'Message','Stop','Continue',opts);
+                    if strcmp(answer,'Continue')
+                        mkdir(path_output);
+                    else 
+                        return
+                    end
+                end
+                nI=nI+1;
             end
       end
    end
@@ -130,6 +174,40 @@ end
       end
   end
   
+  %% Check if some of filtred images have completely no signal in one of the chosed channels
+  
+  for i=1:size(AllImagesFiltered,2)
+      %%message if one of the channels is empty
+                if sum(sum(AllImagesFiltered(i).Image(:,:,main_channel)))==0
+                    opts.Interpreter = 'tex';
+                    opts.Default = 'Continue';
+                    quest = ['\fontsize{12} Channel 1 in image ' AllImages(i).Name  ' is empty. Do you wish to continue?'];
+                    answer = questdlg(quest,'Message','Stop','Continue',opts);
+                    if strcmp(answer,'Continue')
+                        
+                    else 
+                        return
+                    end
+                end
+                
+                if sum(sum(AllImagesFiltered(i).Image(:,:,sec_channel)))==0
+                    opts.Interpreter = 'tex';
+                    opts.Default = 'Continue';
+                    quest = ['\fontsize{12} Channel 2 in image ' AllImages(i).Name  ' is empty. Do you wish to continue?'];
+                    answer = questdlg(quest,'Message','Stop','Continue',opts);
+                    if strcmp(answer,'Continue')
+                        
+                    else 
+                        return
+                    end
+                end
+      
+  end
+  
+  
+  
+  
+  
   %% Computing parameters from the filtered images and saving them
   if Pearson 
       TablePearson  = cell2table(cell(0,2), 'VariableNames', {'Name', 'PearsonCoef'});
@@ -191,6 +269,7 @@ end
       DistanceAll=[];
       for i=1:NumberImages
           DistanceNeighbour(i).Image = DistanceFunc(AllImagesFiltered(i).Image(:,:,main_channel),AllImagesFiltered(i).Image(:,:,sec_channel)).'*PixelSize;
+          DistanceNeighbour(i).Image
           DistanceAll = [DistanceAll; DistanceNeighbour(i).Image];
           DistanceNeighbour(i).Name = AllImagesFiltered(i).Name;
       end
@@ -261,5 +340,78 @@ end
       %save data to csv excel file
       writetable(TableManders,[FolderResults SepSym 'Manders.csv'])
   end
+  
+  
+  
+  if Spearman  
+      TableSpearman  = cell2table(cell(0,2), 'VariableNames', {'Name', 'SpearmanRankCoefficient'});
+      TableSpearman.Name = string(zeros(0,1));  
+      for i=1:NumberImages
+          
+          [TableSpearman.SpearmanRankCoefficient(i)] = SpearmanFunc(double(AllImagesFiltered(i).Image(:,:,main_channel)), double(AllImagesFiltered(i).Image(:,:,sec_channel)));          
+          TableSpearman.Name(i) = AllImagesFiltered(i).Name;
+            
+      end
+      
+      %save plot
+      figure
+      bar(1,mean(TableSpearman.SpearmanRankCoefficient), 'EdgeColor', 'k', 'FaceColor', [0.8 0.8 0.8])    
+      hold on
+      er = errorbar(1,mean(TableSpearman.SpearmanRankCoefficient),std(TableSpearman.SpearmanRankCoefficient),std(TableSpearman.SpearmanRankCoefficient));    
+      er.Color = [0 0 0]; er.LineStyle = 'none';  
+   
+      
+      xticks([1])
+      xticklabels({'Spearman rank coefficient'})
+      saveas(gcf, [FolderResults SepSym 'Spearman.png'])
+      close
+      
+      %save data to matlab workspace
+      if exist([FolderResults SepSym  'AllResults.mat'])==0
+          save([FolderResults SepSym 'AllResults.mat'], 'TableSpearman')
+      else
+          save([FolderResults SepSym 'AllResults.mat'], 'TableSpearman', '-append')
+      end
+      
+      %save data to csv excel file
+      writetable(TableSpearman,[FolderResults SepSym 'Spearman.csv'])
+  end
+    
+  
+
+    if SpearmanNonZero  
+      TableSpearmanNonZero  = cell2table(cell(0,4), 'VariableNames', {'Name', 'SpearmanRankCoefficient','FractionOfUsedPixels','NumberOfUsedPixels'});
+      TableSpearmanNonZero.Name = string(zeros(0,1));  
+      for i=1:NumberImages
+          
+          [TableSpearmanNonZero.SpearmanRankCoefficient(i) TableSpearmanNonZero.FractionOfUsedPixels(i) TableSpearmanNonZero.NumberOfUsedPixels(i)] = SpearmanFuncNonZero(double(AllImagesFiltered(i).Image(:,:,main_channel)), double(AllImagesFiltered(i).Image(:,:,sec_channel)));          
+          TableSpearmanNonZero.Name(i) = AllImagesFiltered(i).Name;
+            
+      end
+      
+      %save plot
+      figure
+      bar(1,mean(TableSpearmanNonZero.SpearmanRankCoefficient), 'EdgeColor', 'k', 'FaceColor', [0.8 0.8 0.8])    
+      hold on
+      er = errorbar(1,mean(TableSpearmanNonZero.SpearmanRankCoefficient),std(TableSpearmanNonZero.SpearmanRankCoefficient),std(TableSpearmanNonZero.SpearmanRankCoefficient));    
+      er.Color = [0 0 0]; er.LineStyle = 'none';  
+   
+      
+      xticks([1])
+      xticklabels({'Spearman rank coefficient (for "non-zero" pixels)'})
+      saveas(gcf, [FolderResults SepSym 'SpearmanNonZero.png'])
+      close
+      
+      %save data to matlab workspace
+      if exist([FolderResults SepSym 'AllResults.mat'])==0
+          save([FolderResults SepSym 'AllResults.mat'], 'TableSpearmanNonZero')
+      else
+          save([FolderResults SepSym 'AllResults.mat'], 'TableSpearmanNonZero', '-append')
+      end
+      
+      %save data to csv excel file
+      writetable(TableSpearmanNonZero,[FolderResults SepSym 'SpearmanNonZero.csv'])
+  end
+
 end
 
